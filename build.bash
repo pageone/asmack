@@ -1,6 +1,10 @@
 #!/bin/bash
 #set -x
 
+TARCMD=gtar
+FINDCMD=gfind
+SEDCMD=gsed
+
 fetch() {
     echo "Fetching from ${1} to ${2}"
     cd $SRC_DIR
@@ -50,7 +54,7 @@ fetchall() {
 	rm -rf ${SRC_DIR}/smack
 	mkdir ${SRC_DIR}/smack
 	cd $SMACK_REPO
-	git archive $SMACK_BRANCH | tar -x -C ${SRC_DIR}/smack
+	git archive $SMACK_BRANCH | $TARCMD -x -C ${SRC_DIR}/smack
 	if [ $? -ne 0 ]; then
 	    exit
 	fi
@@ -66,7 +70,8 @@ fetchall() {
     fetch "http://svn.apache.org/repos/asf/qpid/trunk/qpid/java/management/common/src/main/" "qpid"
     fetch "http://svn.apache.org/repos/asf/harmony/enhanced/java/trunk/classlib/modules/auth/src/main/java/common/" "harmony"
     fetch "https://dnsjava.svn.sourceforge.net/svnroot/dnsjava/trunk" "dnsjava"
-    gitfetch "git://kenai.com/jbosh~origin" "master" "jbosh"
+    #gitfetch "git://kenai.com/jbosh~origin" "master" "jbosh"
+    gitfetch "file:///Users/jon/code/p1v/jbosh" "master" "jbosh"
     # jldap doesn't compile with the latest version (missing deps?), therefore it's a fixed version for now
     #  gitfetch "git://git.openldap.org/openldap-jldap.git" "master" "novell-openldap-jldap"
 }
@@ -76,10 +81,10 @@ copyfolder() {
   cd ${WD}
   (
     cd "${1}"
-    tar -cSsp --exclude-vcs "${3}"
+    $TARCMD -cSsp --exclude-vcs "${3}"
   ) | (
     cd "${2}"
-    tar -xSsp
+    $TARCMD -xSsp
   )
 )
 }
@@ -107,7 +112,7 @@ patchsrc() {
   cd "${WD}"
   (
     cd build/src/trunk/
-    for PATCH in `(cd "../../../${1}" ; find -maxdepth 1 -type f)|sort` ; do
+    for PATCH in `(cd "../../../${1}" ; $FINDCMD -maxdepth 1 -type f)|sort` ; do
       if echo $PATCH | grep '\.sh$'; then
         if [ -f "../../../${1}/$PATCH" ]; then "../../../${1}/$PATCH" || exit 1 ; fi
       fi
@@ -127,7 +132,7 @@ build() {
 }
 
 buildcustom() {
-  for dir in `find patch -maxdepth 1 -mindepth 1 -type d`; do
+  for dir in `$FINDCMD patch -maxdepth 1 -mindepth 1 -type d`; do
     buildsrc
     patchsrc "patch"
     if $BUILD_JINGLE ; then
@@ -135,7 +140,7 @@ buildcustom() {
       JINGLE_ARGS="-Djingle=lib/jstun.jar"
     fi
     patchsrc "${dir}"
-    ant -Djar.suffix=`echo ${dir}|sed 's:patch/:-:'` $JINGLE_ARGS
+    ant -Djar.suffix=`echo ${dir}|$SEDCMD 's:patch/:-:'` $JINGLE_ARGS
   done
 }
 
@@ -201,7 +206,7 @@ initialize() {
 }
 
 copystaticsrc() {
-    cp -ur static-src/* src/
+    cp -r static-src/* src/
 }
 
 # Default configuration
@@ -235,6 +240,6 @@ if $BUILD_CUSTOM ; then
 fi
 
 if which advzip; then
-  find build/*.jar -exec advzip -z4 '{}' ';'
-  find build/*.zip -exec advzip -z4 '{}' ';'
+  $FINDCMD build/*.jar -exec advzip -z4 '{}' ';'
+  $FINDCMD build/*.zip -exec advzip -z4 '{}' ';'
 fi
