@@ -70,8 +70,7 @@ fetchall() {
     fetch "http://svn.apache.org/repos/asf/qpid/trunk/qpid/java/management/common/src/main/" "qpid"
     fetch "http://svn.apache.org/repos/asf/harmony/enhanced/java/trunk/classlib/modules/auth/src/main/java/common/" "harmony"
     fetch "https://dnsjava.svn.sourceforge.net/svnroot/dnsjava/trunk" "dnsjava"
-    #gitfetch "git://kenai.com/jbosh~origin" "master" "jbosh"
-    gitfetch "file:///Users/jon/code/p1v/jbosh" "master" "jbosh"
+    gitfetch "https://github.com/pageone/jbosh.git" "master" "jbosh"
     # jldap doesn't compile with the latest version (missing deps?), therefore it's a fixed version for now
     #  gitfetch "git://git.openldap.org/openldap-jldap.git" "master" "novell-openldap-jldap"
 }
