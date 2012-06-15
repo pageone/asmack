@@ -111,7 +111,7 @@
 <target name="compile-a13" if="build-13"><android-build version="13" /></target>
 <target name="compile-a14" if="build-14"><android-build version="14" /></target>
 
-<target name="compile" depends="compile-a14,compile-a13,compile-a12,compile-a11,compile-a10,compile-a8,compile-a7,compile-a4,compile-a3" />
+<target name="compile" depends="compile-a8" />
 
 </project>
 
